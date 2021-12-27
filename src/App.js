@@ -1,25 +1,35 @@
-import logo from './logo.svg';
-import './App.css';
+import * as React from 'react';
+import {Post} from './components/PostCard'
+import {useHttp} from './hooks/http.hook'
+import CircularProgress from '@mui/material/CircularProgress'
 
 function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+
+	const [data, setData] = React.useState([])
+
+	const { loading, request, error } = useHttp()
+
+	const fetching = React.useCallback(async () => {
+		const fetched = await request('http://localhost:8000/api/posts/')
+
+		setData(fetched)
+	}, [request, setData])
+
+	React.useEffect(() => {
+		fetching()
+	}, [fetching])
+
+	const postsList = data.map((postData) => 
+		<Post data={postData}></Post>
+	)
+
+	return (
+		<div>
+			<h1>Hello world</h1>
+			{!loading && <div>{postsList}</div>}
+            {loading && <CircularProgress />}
+		</div>
+		);
 }
 
 export default App;
